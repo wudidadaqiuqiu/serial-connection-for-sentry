@@ -1,0 +1,1 @@
+cat /sys/class/tty/ttyACM*/device/modalias && echo /sys/class/tty/ttyACM* | sed 's|/sys/class/tty/\(ttyACM[0-9]*\)|\1|g' | tr ' ' '\n'
