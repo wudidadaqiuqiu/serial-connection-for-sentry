@@ -2,10 +2,11 @@
 
 #include <string>
 
+#include "easy_robot_commands/shared_member/concepts.hpp"
 #include "exec_cmd.hpp"
 #include "serial_connection/basic_connector.hpp"
-
 namespace SerialConection {
+
 
 class Connector {
    public:
@@ -18,16 +19,27 @@ class Connector {
         reconnect();
     }
     void Transmite(const uint8_t* data, size_t len) {
+        std::cout << "Connector Transmite " << len << "bytes" << std::endl;
         if (!inner_connector.write(data, len))
             reconnect();
     }
 
     void Receive() {
-
     }
 
     void blocked_consume(const uint8_t* data, size_t len) {
         Transmite(data, len);
+    }
+
+    template <EasyRobotCommands::can_trigger T>
+    Connector& operator<<(T& trigger) {
+        auto lambda = [this](T& trigger_) {
+            // stream container >> Connector Transmite
+            trigger_ >> (*this);
+        };
+        EasyRobotCommands::trigger_operation<T> ope(lambda);
+        trigger.register_trigger_operation(ope);
+        return (*this);
     }
 
    private:

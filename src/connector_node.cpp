@@ -23,6 +23,13 @@ using EasyRobotCommands::Stream;
 
 using SerialConection::Connector;
 
+// 递归模板展开，对每个元素调用默认构造函数
+template <typename Args>
+auto make_tuple_with_default_constructors() {
+    return typename Args::type();
+}
+
+
 void printArray(const uint8_t* arr, size_t length) {
     std::cout << std::hex;
     for (size_t i = 0; i < length; ++i) {
@@ -56,30 +63,22 @@ class ConnectorNode : public rclcpp::Node {
         con.Connect();
     }
 
-    void subscribe_easy_robot_commands() {
-        auto lambda1 = [this](module_msg::SharedPtr msg) {
-            robot_mode.triggered_from(msg);
+    template <typename MSG>
+    void subscribe_easy_robot_command(ea_base_caller<MSG>& b) {
+        auto lambda = [&b](typename MSG::SharedPtr msg) {
+            b.triggered_from(msg);
         };
-        auto lambda2 = [this](ea_base_caller<module_msg>& caller) {
-            // this->robot_modules_mode_triggered(caller);
-            stream.triggered_from(caller);
-        };
-        auto lambda3 = [this](decltype(stream)& s) {
-            static_assert(std::is_same<decltype(s),
-                                       Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>>&>::value,
-                          "Type mismatch!");
-            // PrintConsumer c{};
-            s >> con;
-        };
-        stream.register_trigger_operation(trigger_operation<decltype(stream)>(lambda3));
-        robot_mode.register_trigger_operation(trigger_operation<ea_base_caller<module_msg>>(lambda2));
         rclcpp::SubscriptionOptions options;
         options.callback_group = subscription_callback_group;
-        sub = create_subscription<module_msg>("easy_robot_commands/" +
-                                                  std::string(StructDataT<module_msg>::topic_name),
-                                              rclcpp::SensorDataQoS(), lambda1, options);
+        sub = create_subscription<MSG>("easy_robot_commands/" +
+                                                  std::string(StructDataT<MSG>::topic_name),
+                                              rclcpp::SensorDataQoS(), lambda, options);
+        con << (stream << b);
     }
 
+    void subscribe_commands() {
+        subscribe_easy_robot_command(robot_mode);
+    }
     void executor_add_and_apin() {
         executor->add_node(shared_from_this());
         executor->spin();
@@ -94,17 +93,13 @@ class ConnectorNode : public rclcpp::Node {
 
     rclcpp::CallbackGroup::SharedPtr subscription_callback_group;
     std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> executor;
-    void robot_modules_mode_triggered(ea_base_caller<module_msg>& caller) {
-        RCLCPP_INFO(this->get_logger(), "%d....", *(uint8_t*)&robot_mode.get_struct_data());
-        RCLCPP_INFO(this->get_logger(), "%s: %d", std::string(caller.get_struct_data().MsgTypeName).c_str(), caller.get_structure_data().master_enable);
-    }
 };
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
     auto node = std::make_shared<ConnectorNode>();
-    node->subscribe_easy_robot_commands();
-
+    // node->subscribe_easy_robot_command();
+    node->subscribe_commands();
     node->executor_add_and_apin();
     rclcpp::shutdown();
     return 0;
