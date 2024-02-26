@@ -32,7 +32,7 @@ class TestNode : public rclcpp::Node {
     TestNode()
         : Node("TestNode"),
           robot_mode(),
-          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash") {
+          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash", nullptr) {
         (void)executor_;
         // 创建两个不同的CallbackGroup，一个用于Subscription，另一个用于Timer
         subscription_callback_group_ = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);

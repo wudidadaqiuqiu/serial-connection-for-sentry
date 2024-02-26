@@ -13,16 +13,20 @@ using file_descriptor_t = int;
 class basic_connector {
    public:
     basic_connector() : fd(-1), has_opened(false) {}
-    ~basic_connector() { close();}
+    ~basic_connector() { close(); }
 
     bool open(const char* file_path) {
         fd = ::open(file_path, O_RDWR | O_NOCTTY | O_NDELAY);
+        fcntl(fd, F_SETFL, 0);
         has_opened = true;
         if (fd == -1) {
             return false;
         }
         termios newtio{};
         newtio.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+        newtio.c_iflag = 0;
+        newtio.c_oflag = 0;
+        newtio.c_lflag = 0;
         newtio.c_cc[VTIME] = 0;
         newtio.c_cc[VMIN] = 1;
         tcflush(fd, TCIOFLUSH);
@@ -50,10 +54,24 @@ class basic_connector {
         }
     }
 
+    int read() {
+        if (fd == -1) return -1;
+        // std::cout << "basic connector read\n";
+        int res = reader_.read(fd);
+        if (res == -1) {
+            std::cout << "errno is: " << errno << std::endl;
+        }
+        return res;
+    }
+
+    const uint8_t* get() {
+        return reader_.buf;
+    }
+
    private:
     file_descriptor_t fd;
     bool has_opened;
-
+    
     class writer {
        public:
         static bool write(file_descriptor_t fd, const uint8_t* data, size_t len) {
@@ -63,6 +81,17 @@ class basic_connector {
             return false;
         }
     };
+
+    class reader {
+       public:
+        uint8_t buf[127];
+        int read(file_descriptor_t fd) {
+            int res = ::read(fd, buf, sizeof(buf));
+            return res;
+        }
+    };
+
+    reader reader_;
 };
 
 }  // namespace SerialConection

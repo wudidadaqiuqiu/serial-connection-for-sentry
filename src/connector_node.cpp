@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "easy_robot_commands/msg/robot_modules_mode.hpp"
+#include "easy_robot_commands/msg/robot_shoot_info.hpp"
 #include "easy_robot_commands/shared_member/base_caller_template.hpp"
 #include "easy_robot_commands/shared_member/pkg_info.hpp"
 #include "easy_robot_commands/shared_member/trigger_operation.hpp"
@@ -11,19 +12,26 @@
 #include "protocol/serialized_protocol.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "serial_connection/connector.hpp"
+#include "struct_def/struct_def.hpp"
 
 using module_msg = easy_robot_commands::msg::RobotModulesMode;
 using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
+using sh_info_msg = easy_robot_commands::msg::RobotShootInfo;
 using EasyRobotCommands::CRC16Config;
 using EasyRobotCommands::ea_base_caller;
+using EasyRobotCommands::protocol_pack_id;
+using EasyRobotCommands::protocol_size_t;
 using EasyRobotCommands::protocol_type_e;
 using EasyRobotCommands::ProtocolConfig;
 using EasyRobotCommands::Stream;
 using EasyRobotCommands::StructDataT;
 using EasyRobotCommands::trigger_operation;
+using EasyRobotCommands::Unpacker;
 using SerialConection::Connector;
 
 // using EasyRobotCommands::AllMSGPackT::CallerTuple;
+
+using StructDef::shoot_info_t;
 
 // 递归模板展开，对每个元素调用默认构造函数
 template <typename Args>
@@ -81,12 +89,43 @@ class ConnectorNode : public rclcpp::Node {
           tu(),
           //   robot_mode(),
           //   chassis_ve(),
-          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash") {
+          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash", printArray) {
         subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
         executor->add_callback_group(subscription_callback_group, this->get_node_base_interface());
 
+        pub = this->create_publisher<sh_info_msg>("easy_robot_commands/robot_shoot_info", 10);
+
+        auto l1 = [this](protocol_pack_id id, const uint8_t* data, protocol_size_t data_len) {
+            (void)id;
+            // std::cout << "update len is " << data_len << std::endl;
+            // printArray(data, data_len);
+            StructDef::shoot_info_t::shoot_info_to_pc_t* s = (StructDef::shoot_info_t::shoot_info_to_pc_t*) data;
+            static_assert(sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t) == 15);
+            (sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t));
+            this->msgpub.rpy[0] = s->euler[0];
+            this->msgpub.rpy[1] = s->euler[1];
+            this->msgpub.rpy[2] = s->euler[2];
+            this->msgpub.mode = static_cast<uint8_t>(s->auto_mode_flag);
+            this->msgpub.robot_id = s->robot_id;
+            this->msgpub.x = s->bullet_speed_0_to_127 | s->is_shoot_data_updated;
+            this->pub->publish(this->msgpub);
+        };
+        auto ll1 = [](protocol_pack_id id) -> bool {
+            // std::cout << "unpack id is " << id <<std::endl;
+            return (id == 0x03);
+        };
+        std::map<protocol_pack_id, std::function<void(protocol_pack_id, const uint8_t*, protocol_size_t)>> update_func_map;
+        std::map<protocol_pack_id, std::function<bool(protocol_pack_id)>> check_id_func_map;
+        check_id_func_map[0x03] = ll1;
+        update_func_map[0x03] = l1;
+        unpacker.change_map(update_func_map, check_id_func_map);
+
+        auto c1 = [this](const uint8_t* data, size_t len) {
+            unpacker.unpack(data, len);
+        };
+        con.change_recv_callbaclk(c1);
         con.Connect();
     }
 
@@ -142,8 +181,12 @@ class ConnectorNode : public rclcpp::Node {
 
     EasyRobotCommands::AllMSGPackT::CallerTuple tu;
 
+    rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
+    sh_info_msg msgpub;
+
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
+    Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;
     Connector con;
 
     rclcpp::CallbackGroup::SharedPtr subscription_callback_group;
