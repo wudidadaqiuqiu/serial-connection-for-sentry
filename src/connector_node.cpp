@@ -14,6 +14,8 @@
 #include "serial_connection/connector.hpp"
 #include "struct_def/struct_def.hpp"
 
+#include "frame_rate.hpp"
+
 using module_msg = easy_robot_commands::msg::RobotModulesMode;
 using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
 using sh_info_msg = easy_robot_commands::msg::RobotShootInfo;
@@ -111,6 +113,8 @@ class ConnectorNode : public rclcpp::Node {
             this->msgpub.robot_id = s->robot_id;
             this->msgpub.x = s->bullet_speed_0_to_127 | s->is_shoot_data_updated;
             this->pub->publish(this->msgpub);
+            this->rate1.update();
+            // std::cout << "rate: " << rate1.fps << std::endl;
         };
         auto ll1 = [](protocol_pack_id id) -> bool {
             // std::cout << "unpack id is " << id <<std::endl;
@@ -184,6 +188,7 @@ class ConnectorNode : public rclcpp::Node {
     rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
     sh_info_msg msgpub;
 
+    framerate_t rate1;
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
     Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;

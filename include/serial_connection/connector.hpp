@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <thread>
+#include <condition_variable>
 
 #include "container/multithread_stream.hpp"
 #include "easy_robot_commands/shared_member/concepts.hpp"
@@ -11,12 +12,14 @@
 namespace SerialConection {
 class Connector {
    public:
+   using receive_stream = EasyRobotCommands::multithread_stream<256>;
     Connector(const std::string& modalias,
               const std::string& bash_absolute_path,
               const std::function<void(const uint8_t*, size_t)>& recv_notify = nullptr)
         : key(modalias),
           path(bash_absolute_path),
           inner_connector(),
+          data_in_stream(0),
           recv_callback(recv_notify),
           recv_flag(true) { }
     ~Connector() {
@@ -41,9 +44,34 @@ class Connector {
                 std::cout << "read len < 0 enter reconnect, read_len:" << read_len << std::endl;
                 reconnect();
             } else {
+                if (inner_stream.add_with_caution(inner_connector.get(), read_len) == receive_stream::stream_normal){
+                    {std::lock_guard<std::mutex> l(pc_mutex);
+                        data_in_stream++;
+                    }
+                    condition.notify_one();
+                }
                 // std::cout << "read success!!" << std::endl;
-                if (recv_callback != nullptr)
-                    recv_callback(inner_connector.get(), read_len);
+                // if (recv_callback != nullptr)
+                    // recv_callback(inner_connector.get(), read_len);
+            }
+        }
+    }
+    
+    void receive_stream_consume_loop() {
+        while (recv_flag) {
+            {std::unique_lock<std::mutex> l(pc_mutex);
+                condition.wait(l, [&]{return (this->data_in_stream > 0);});
+                --data_in_stream;
+            }
+            // std::cout << "data in stream triggered"<< std::endl;
+            if (recv_callback == nullptr) {
+                inner_stream.clear();
+                continue;
+            }
+            while (inner_stream.consume_with_best_effort(recv_callback, true) != receive_stream::stream_empty) {
+                /* code */
+                // static uint32_t ii;
+                // std::cout << "consume once " << ii++ << std::endl;
             }
         }
     }
@@ -130,15 +158,18 @@ class Connector {
     const std::string key;
     const std::string path;
     basic_connector inner_connector;
-    EasyRobotCommands::multithread_stream<256> inner_stream;
-
+    receive_stream inner_stream;
+    std::condition_variable condition;
+    std::mutex pc_mutex;
+    int data_in_stream;
     mutable std::mutex reconnect_mutex;
     std::function<void(const uint8_t*, size_t)> recv_callback;
     bool recv_flag;
     std::thread recv_thread;
-
+    std::thread process_thread;
     void ReceiveStart() {
         recv_thread = std::thread(&Connector::receive_loop, this);
+        process_thread = std::thread(&Connector::receive_stream_consume_loop, this);
     }
 };
 
