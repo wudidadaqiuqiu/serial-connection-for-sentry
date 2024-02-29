@@ -137,7 +137,7 @@ class ConnectorNode : public rclcpp::Node {
 
     void subscribe_commands() {
         folded_subscribe(std::make_index_sequence<SubsTupleT<
-                             EasyRobotCommands::AllMSGPackT::MSGTuple>::MSG_NUN>());
+                             TransmiteInfo::SubsMSG::MSGTuple>::MSG_NUN>());
     }
 
     // template <std::size_t Index = 0, typename... Types>
@@ -176,9 +176,11 @@ class ConnectorNode : public rclcpp::Node {
     // rclcpp::Subscription<module_msg>::SharedPtr sub;
     // rclcpp::Subscription<chassis_ve_msg>::SharedPtr sub2;
     // SubsTuple<std::tuple_element_t<0, EasyRobotCommands::AllMSGPackT::MSGTuple>>::type subtu;
-    SubsTupleT<EasyRobotCommands::AllMSGPackT::MSGTuple>::Type subtu;
+    // SubsTupleT<EasyRobotCommands::AllMSGPackT::MSGTuple>::Type subtu;
+    SubsTupleT<TransmiteInfo::SubsMSG::MSGTuple>::Type subtu;
 
-    EasyRobotCommands::AllMSGPackT::CallerTuple tu;
+    TransmiteInfo::SubsMSG::CallerTuple tu;
+    // EasyRobotCommands::AllMSGPackT::CallerTuple tu;
 
     // rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
     // sh_info_msg msgpub;
