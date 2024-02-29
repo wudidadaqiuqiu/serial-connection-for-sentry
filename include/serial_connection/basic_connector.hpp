@@ -12,9 +12,16 @@ using file_descriptor_t = int;
 
 class basic_connector {
    public:
-    basic_connector() : fd(-1), has_opened(false) {}
+    basic_connector() : fd(-1), has_opened(false), working(false) {}
     ~basic_connector() { close(); }
 
+    bool is_working() {
+        return working;
+    }
+
+    void set_to_not_working() {
+        working = false;
+    }
     bool open(const char* file_path) {
         fd = ::open(file_path, O_RDWR | O_NOCTTY | O_NDELAY);
         fcntl(fd, F_SETFL, 0);
@@ -33,7 +40,7 @@ class basic_connector {
         tcsetattr(fd, TCSANOW, &newtio);
         // 设置为非阻塞模式，这个在读串口的时候会用到
         //  fcntl(fd, F_SETFL, O_NONBLOCK);
-
+        working = true;
         return true;
     }
 
@@ -42,6 +49,7 @@ class basic_connector {
         if (fd >= 0) ::close(fd);
         fd = -1;
         has_opened = false;
+        working = false;
     }
 
     bool write(const uint8_t* data, size_t len) {
@@ -49,6 +57,7 @@ class basic_connector {
         if (writer::write(fd, data, len)) {
             return true;
         } else {
+            working = false;
             fd = -1;
             return false;
         }
@@ -59,6 +68,7 @@ class basic_connector {
         // std::cout << "basic connector read\n";
         int res = reader_.read(fd);
         if (res == -1) {
+            working = false;
             std::cout << "errno is: " << errno << std::endl;
         }
         return res;
@@ -71,7 +81,7 @@ class basic_connector {
    private:
     file_descriptor_t fd;
     bool has_opened;
-    
+    bool working;
     class writer {
        public:
         static bool write(file_descriptor_t fd, const uint8_t* data, size_t len) {

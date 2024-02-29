@@ -2,6 +2,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <utility>
+#include <chrono>
 
 #include "easy_robot_commands/msg/robot_modules_mode.hpp"
 #include "easy_robot_commands/msg/robot_shoot_info.hpp"
@@ -17,6 +18,8 @@
 #include "struct_def/receive_info.hpp"
 #include "struct_def/shoot_info.hpp"
 #include "frame_rate.hpp"
+
+using namespace std::chrono_literals;
 
 using module_msg = easy_robot_commands::msg::RobotModulesMode;
 using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
@@ -79,6 +82,8 @@ class ConnectorNode : public rclcpp::Node {
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
         executor->add_callback_group(subscription_callback_group, this->get_node_base_interface());
 
+        reconnect_timer = this->create_wall_timer(
+        1000ms, std::bind(&ConnectorNode::check_connection, this));
         // pub = this->create_publisher<sh_info_msg>("easy_robot_commands/robot_shoot_info", 10);
 
         // auto l1 = [this](protocol_pack_id id, const uint8_t* data, protocol_size_t data_len) {
@@ -161,6 +166,12 @@ class ConnectorNode : public rclcpp::Node {
         executor->spin();
     };
 
+    void check_connection() {
+        if (!con.is_working()) {
+            con.ReConnect();
+        }
+    }
+
    private:
     // rclcpp::Subscription<module_msg>::SharedPtr sub;
     // rclcpp::Subscription<chassis_ve_msg>::SharedPtr sub2;
@@ -181,6 +192,7 @@ class ConnectorNode : public rclcpp::Node {
 
     rclcpp::CallbackGroup::SharedPtr subscription_callback_group;
     std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> executor;
+    rclcpp::TimerBase::SharedPtr reconnect_timer;
 };
 
 int main(int argc, char** argv) {
