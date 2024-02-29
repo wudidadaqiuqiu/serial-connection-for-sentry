@@ -23,6 +23,7 @@ class Connector {
           recv_callback(recv_notify),
           recv_flag(true) { }
     ~Connector() {
+        inner_connector.close_prepare();
         recv_flag = false;
         process_thread_end = true;
         working_condition.notify_all();
@@ -45,7 +46,7 @@ class Connector {
         return is_working();
     }
     void Transmite(const uint8_t* data, size_t len) {
-        std::cout << "Connector Transmite " << len << "bytes" << std::endl;
+        // std::cout << "Connector Transmite " << len << "bytes" << std::endl;
         if (!inner_connector.write(data, len))
             reconnect();
     }
@@ -57,12 +58,13 @@ class Connector {
                 std::unique_lock<std::mutex> l(working_mutex);
                 working_condition.wait(l, [&]{return (this->inner_connector.is_working() || this->process_thread_end);});
                 if (process_thread_end) {
+                    std::cout << "receive loop break" << std::endl;
                     break;
                 }
             }
             int read_len = inner_connector.read();
             if (read_len <= 0) {
-                std::cout << "read len <= 0 enter reconnect, read_len:" << read_len << std::endl;
+                std::cout << "read len <= 0, read_len:" << read_len << std::endl;
                 inner_connector.set_to_not_working();
                 // reconnect();
             } else {
@@ -80,6 +82,7 @@ class Connector {
                     // recv_callback(inner_connector.get(), read_len);
             }
         }
+        std::cout << "receive loop end" << std::endl;
     }
     
     void receive_stream_consume_loop() {

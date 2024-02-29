@@ -44,6 +44,17 @@ class basic_connector {
         return true;
     }
 
+    void close_prepare() {
+        if (fd >= 0) {
+            std::cout << "basic connector close prepare, set to non block" << std::endl;
+            fcntl(fd, F_SETFL, O_NONBLOCK);
+            termios old;
+            tcgetattr(fd, &old);
+            old.c_cc[VMIN] = 0;
+            tcsetattr(fd, TCSANOW, &old);
+        }
+    }
+
     void close() {
         std::cerr << "basic connector close entering" << std::endl;
         if (fd >= 0) ::close(fd);
