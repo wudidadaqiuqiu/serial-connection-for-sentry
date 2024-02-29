@@ -13,7 +13,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "serial_connection/connector.hpp"
 #include "struct_def/struct_def.hpp"
-
+#include "struct_def/transmit_info.hpp"
+#include "struct_def/receive_info.hpp"
+#include "struct_def/shoot_info.hpp"
 #include "frame_rate.hpp"
 
 using module_msg = easy_robot_commands::msg::RobotModulesMode;
@@ -30,7 +32,9 @@ using EasyRobotCommands::StructDataT;
 using EasyRobotCommands::trigger_operation;
 using EasyRobotCommands::Unpacker;
 using SerialConection::Connector;
-
+using SerialConection::framerate_t;
+using TransmiteInfo::SubsTupleT;
+using ReceiveInfo::PubsT;
 // using EasyRobotCommands::AllMSGPackT::CallerTuple;
 
 using StructDef::shoot_info_t;
@@ -59,29 +63,6 @@ class PrintConsumer {
     }
 };
 
-template <typename TupleMSG>
-struct SubsTupleT {
-    static constexpr std::size_t MSG_NUN = std::tuple_size<TupleMSG>::value;
-
-    template <std::size_t... Index>
-    struct seq_geT {
-        using seq = std::index_sequence<Index...>;
-    };
-
-    template <typename... MSGs>
-    struct SubsTuple {
-        using type = std::tuple<typename rclcpp::Subscription<MSGs>::SharedPtr...>;
-    };
-
-    template <std::size_t... Indices>
-    static constexpr auto makeSubsTuple(std::index_sequence<Indices...>) ->
-        typename SubsTuple<std::tuple_element_t<Indices, TupleMSG>...>::type {
-        return SubsTuple<std::tuple_element_t<Indices, TupleMSG>...>::type();
-    }
-
-    using Type = decltype(makeSubsTuple(std::make_index_sequence<MSG_NUN>{}));
-};
-
 class ConnectorNode : public rclcpp::Node {
     using self_t = ConnectorNode;
 
@@ -89,6 +70,7 @@ class ConnectorNode : public rclcpp::Node {
     ConnectorNode()
         : Node("ConnectorNode"),
           tu(),
+        //   rate1("recv"),
           //   robot_mode(),
           //   chassis_ve(),
           con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash", printArray) {
@@ -97,33 +79,35 @@ class ConnectorNode : public rclcpp::Node {
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
         executor->add_callback_group(subscription_callback_group, this->get_node_base_interface());
 
-        pub = this->create_publisher<sh_info_msg>("easy_robot_commands/robot_shoot_info", 10);
+        // pub = this->create_publisher<sh_info_msg>("easy_robot_commands/robot_shoot_info", 10);
 
-        auto l1 = [this](protocol_pack_id id, const uint8_t* data, protocol_size_t data_len) {
-            (void)id;
-            // std::cout << "update len is " << data_len << std::endl;
-            // printArray(data, data_len);
-            StructDef::shoot_info_t::shoot_info_to_pc_t* s = (StructDef::shoot_info_t::shoot_info_to_pc_t*) data;
-            static_assert(sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t) == 15);
-            (sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t));
-            this->msgpub.rpy[0] = s->euler[0];
-            this->msgpub.rpy[1] = s->euler[1];
-            this->msgpub.rpy[2] = s->euler[2];
-            this->msgpub.mode = static_cast<uint8_t>(s->auto_mode_flag);
-            this->msgpub.robot_id = s->robot_id;
-            this->msgpub.x = s->bullet_speed_0_to_127 | s->is_shoot_data_updated;
-            this->pub->publish(this->msgpub);
-            this->rate1.update();
-            // std::cout << "rate: " << rate1.fps << std::endl;
-        };
-        auto ll1 = [](protocol_pack_id id) -> bool {
-            // std::cout << "unpack id is " << id <<std::endl;
-            return (id == 0x03);
-        };
+        // auto l1 = [this](protocol_pack_id id, const uint8_t* data, protocol_size_t data_len) {
+        //     (void)id;
+        //     // std::cout << "update len is " << data_len << std::endl;
+        //     // printArray(data, data_len);
+        //     StructDef::shoot_info_t::shoot_info_to_pc_t* s = (StructDef::shoot_info_t::shoot_info_to_pc_t*) data;
+        //     static_assert(sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t) == 15);
+        //     (sizeof(StructDef::shoot_info_t::shoot_info_to_pc_t));
+        //     this->msgpub.rpy[0] = s->euler[0];
+        //     this->msgpub.rpy[1] = s->euler[1];
+        //     this->msgpub.rpy[2] = s->euler[2];
+        //     this->msgpub.mode = static_cast<uint8_t>(s->auto_mode_flag);
+        //     this->msgpub.robot_id = s->robot_id;
+        //     this->msgpub.x = s->bullet_speed_0_to_127 | s->is_shoot_data_updated;
+        //     this->pub->publish(this->msgpub);
+        //     this->rate1.update();
+        //     // std::cout << "rate: " << rate1.fps << std::endl;
+        // };
+        // auto ll1 = [](protocol_pack_id id) -> bool {
+        //     // std::cout << "unpack id is " << id <<std::endl;
+        //     return (id == 0x03);
+        // };
         std::map<protocol_pack_id, std::function<void(protocol_pack_id, const uint8_t*, protocol_size_t)>> update_func_map;
         std::map<protocol_pack_id, std::function<bool(protocol_pack_id)>> check_id_func_map;
-        check_id_func_map[0x03] = ll1;
-        update_func_map[0x03] = l1;
+        // check_id_func_map[0x03] = ll1;
+        // update_func_map[0x03] = l1;
+        shoot_info_pubt.init(*this);
+        shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
         unpacker.change_map(update_func_map, check_id_func_map);
 
         auto c1 = [this](const uint8_t* data, size_t len) {
@@ -185,10 +169,11 @@ class ConnectorNode : public rclcpp::Node {
 
     EasyRobotCommands::AllMSGPackT::CallerTuple tu;
 
-    rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
-    sh_info_msg msgpub;
+    // rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
+    // sh_info_msg msgpub;
+    // framerate_t rate1;
 
-    framerate_t rate1;
+    PubsT<sh_info_msg, shoot_info_t> shoot_info_pubt;
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
     Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;
