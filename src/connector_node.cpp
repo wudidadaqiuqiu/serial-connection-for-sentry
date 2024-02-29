@@ -20,7 +20,7 @@
 #include "frame_rate.hpp"
 
 using namespace std::chrono_literals;
-
+namespace msgea = easy_robot_commands::msg;
 using module_msg = easy_robot_commands::msg::RobotModulesMode;
 using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
 using sh_info_msg = easy_robot_commands::msg::RobotShootInfo;
@@ -34,13 +34,15 @@ using EasyRobotCommands::Stream;
 using EasyRobotCommands::StructDataT;
 using EasyRobotCommands::trigger_operation;
 using EasyRobotCommands::Unpacker;
+using EasyRobotCommands::MSGPack;
 using SerialConection::Connector;
 using SerialConection::framerate_t;
-using TransmiteInfo::SubsTupleT;
-using ReceiveInfo::PubsT;
-// using EasyRobotCommands::AllMSGPackT::CallerTuple;
 
 using StructDef::shoot_info_t;
+
+using TransmiteInfo::SubsTupleT;
+using ReceiveInfo::PubsT;
+using SubsMSG = MSGPack<msgea::RobotModulesMode, msgea::RobotChassisVelocity>;
 
 // 递归模板展开，对每个元素调用默认构造函数
 template <typename Args>
@@ -137,7 +139,7 @@ class ConnectorNode : public rclcpp::Node {
 
     void subscribe_commands() {
         folded_subscribe(std::make_index_sequence<SubsTupleT<
-                             TransmiteInfo::SubsMSG::MSGTuple>::MSG_NUN>());
+                             SubsMSG::MSGTuple>::MSG_NUN>());
     }
 
     // template <std::size_t Index = 0, typename... Types>
@@ -177,9 +179,9 @@ class ConnectorNode : public rclcpp::Node {
     // rclcpp::Subscription<chassis_ve_msg>::SharedPtr sub2;
     // SubsTuple<std::tuple_element_t<0, EasyRobotCommands::AllMSGPackT::MSGTuple>>::type subtu;
     // SubsTupleT<EasyRobotCommands::AllMSGPackT::MSGTuple>::Type subtu;
-    SubsTupleT<TransmiteInfo::SubsMSG::MSGTuple>::Type subtu;
+    SubsTupleT<SubsMSG::MSGTuple>::Type subtu;
 
-    TransmiteInfo::SubsMSG::CallerTuple tu;
+    SubsMSG::CallerTuple tu;
     // EasyRobotCommands::AllMSGPackT::CallerTuple tu;
 
     // rclcpp::Publisher<sh_info_msg>::SharedPtr pub;

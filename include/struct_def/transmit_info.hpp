@@ -25,8 +25,4 @@ struct SubsTupleT {
     using Type = decltype(makeSubsTuple(std::make_index_sequence<MSG_NUN>{}));
 };
 
-using EasyRobotCommands::MSGPack;
-namespace msgea = easy_robot_commands::msg;
-using SubsMSG = MSGPack<msgea::RobotModulesMode, msgea::RobotChassisVelocity>;
-
 }
