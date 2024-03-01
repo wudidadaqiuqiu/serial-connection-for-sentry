@@ -19,11 +19,13 @@
 #include "struct_def/shoot_info.hpp"
 #include "frame_rate.hpp"
 
+#include "struct_def/geometry_msg_specified.hpp"
+
 using namespace std::chrono_literals;
 namespace msgea = easy_robot_commands::msg;
-using module_msg = easy_robot_commands::msg::RobotModulesMode;
-using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
-using sh_info_msg = easy_robot_commands::msg::RobotShootInfo;
+// using module_msg = easy_robot_commands::msg::RobotModulesMode;
+// using chassis_ve_msg = easy_robot_commands::msg::RobotChassisVelocity;
+// using sh_info_msg = easy_robot_commands::msg::RobotShootInfo;
 using EasyRobotCommands::CRC16Config;
 using EasyRobotCommands::ea_base_caller;
 using EasyRobotCommands::protocol_pack_id;
@@ -42,7 +44,7 @@ using StructDef::shoot_info_t;
 
 using TransmiteInfo::SubsTupleT;
 using ReceiveInfo::PubsT;
-using SubsMSG = MSGPack<msgea::RobotModulesMode, msgea::RobotChassisVelocity>;
+using SubsMSG = MSGPack<geometry_msgs::msg::WrenchStamped>;
 
 // 递归模板展开，对每个元素调用默认构造函数
 template <typename Args>
@@ -113,8 +115,8 @@ class ConnectorNode : public rclcpp::Node {
         std::map<protocol_pack_id, std::function<bool(protocol_pack_id)>> check_id_func_map;
         // check_id_func_map[0x03] = ll1;
         // update_func_map[0x03] = l1;
-        shoot_info_pubt.init(*this);
-        shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
+        // shoot_info_pubt.init(*this);
+        // shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
         unpacker.change_map(update_func_map, check_id_func_map);
 
         auto c1 = [this](const uint8_t* data, size_t len) {
@@ -188,7 +190,7 @@ class ConnectorNode : public rclcpp::Node {
     // sh_info_msg msgpub;
     // framerate_t rate1;
 
-    PubsT<sh_info_msg, shoot_info_t> shoot_info_pubt;
+    // PubsT<sh_info_msg, shoot_info_t> shoot_info_pubt;
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
     Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;
