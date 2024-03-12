@@ -82,7 +82,7 @@ class ConnectorNode : public rclcpp::Node {
         //   rate1("recv"),
           //   robot_mode(),
           //   chassis_ve(),
-          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/xy/code/ros2_ws/src/serial_connection/src/uart_fd.bash", printArray) {
+          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/ubuntu/sentry_ws/src/serial-connection-for-sentry/src/uart_fd.bash", printArray) {
         subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
@@ -135,10 +135,11 @@ class ConnectorNode : public rclcpp::Node {
     void subscribe_easy_robot_command(rclcpp::Subscription<MSG>::SharedPtr& sub, ea_base_caller<MSG>& b) {
         auto lambda = [&b](typename MSG::SharedPtr msg) {
             b.triggered_from(msg);
+            // std::cout << "subs ..." << std::endl;
         };
         rclcpp::SubscriptionOptions options;
         options.callback_group = subscription_callback_group;
-        sub = create_subscription<MSG>("easy_robot_commands/" +
+        sub = create_subscription<MSG>("/" +
                                            std::string(StructDataT<MSG>::topic_name),
                                        rclcpp::SensorDataQoS(), lambda, options);
         con << (stream << b);

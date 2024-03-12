@@ -25,6 +25,7 @@ struct EasyRobotCommands::StructDataT<geometry_msgs::msg::WrenchStamped> {
         data.vx = msgptr->wrench.force.x;
         data.vy = msgptr->wrench.force.y;
         data.wz = msgptr->wrench.torque.z;
+        // std::cout << "subscribe /cmd_vel" << std::endl;
         return *this;
     }
 
