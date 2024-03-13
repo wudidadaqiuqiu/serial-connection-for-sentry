@@ -1,3 +1,35 @@
+# sentry connection doc
+- 23.3.13
+## launch
+```shell
+ubuntu@user:~$ source bridge.sh
+```
+## node info
+```shell
+ubuntu@user:~/sentry_ws$ ros2 node info /ConnectorNode 
+/ConnectorNode
+  Subscribers:
+    /cmd_vel: geometry_msgs/msg/WrenchStamped
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+  Publishers:
+    /easy_robot_commands/offset_data: robot_msgs/msg/GimbalData
+    /easy_robot_commands/referee_data_for_decision: robot_msgs/msg/RefereeData
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rosout: rcl_interfaces/msg/Log
+  Service Servers:
+    /ConnectorNode/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /ConnectorNode/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /ConnectorNode/get_parameters: rcl_interfaces/srv/GetParameters
+    /ConnectorNode/list_parameters: rcl_interfaces/srv/ListParameters
+    /ConnectorNode/set_parameters: rcl_interfaces/srv/SetParameters
+    /ConnectorNode/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+```
+
 # serial connection 使用文档
 
 ## protocol
