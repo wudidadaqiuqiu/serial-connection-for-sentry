@@ -21,6 +21,7 @@
 
 #include "struct_def/geometry_msg_specified.hpp"
 #include "struct_def/referee_data_for_decision.hpp"
+#include "struct_def/offset_data.hpp"
 
 using namespace std::chrono_literals;
 namespace msgea = easy_robot_commands::msg;
@@ -43,6 +44,7 @@ using SerialConection::framerate_t;
 
 using StructDef::shoot_info_t;
 using StructDef::referee_data_for_decision;
+using StructDef::robot_offset_data;
 
 using TransmiteInfo::SubsTupleT;
 using ReceiveInfo::PubsT;
@@ -122,6 +124,10 @@ class ConnectorNode : public rclcpp::Node {
 
         referee_data_pub.init(*this);
         referee_data_pub.add_to_maps(check_id_func_map, update_func_map);
+        
+        robot_offset_data_pub.init(*this);
+        robot_offset_data_pub.add_to_maps(check_id_func_map, update_func_map);
+        
         unpacker.change_map(update_func_map, check_id_func_map);
 
         auto c1 = [this](const uint8_t* data, size_t len) {
@@ -198,6 +204,8 @@ class ConnectorNode : public rclcpp::Node {
 
     // PubsT<sh_info_msg, shoot_info_t> shoot_info_pubt;
     PubsT<robot_msgs::msg::RefereeData, referee_data_for_decision> referee_data_pub;
+
+    PubsT<robot_msgs::msg::GimbalData, robot_offset_data> robot_offset_data_pub;
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
     Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;
