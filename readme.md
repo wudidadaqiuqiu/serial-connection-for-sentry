@@ -29,6 +29,15 @@ ubuntu@user:~/sentry_ws$ ros2 node info /ConnectorNode
 
   Action Clients:
 ```
+## 消息处理
+### chip -> ros2
+- /easy_robot_commands/referee_data_for_decision: robot_msgs/msg/RefereeData
+    - 结构体到msg的赋值逻辑详见 src/serial-connection-for-sentry/include/struct_def/referee_data_for_decision.hpp 中的transfer_to 函数
+- /easy_robot_commands/offset_data: robot_msgs/msg/GimbalData
+    - 结构体到msg的赋值逻辑详见 src/serial-connection-for-sentry/include/struct_def/offset_data.hpp 中的transfer_to 函数
+### ros2 -> chip
+- /cmd_vel: geometry_msgs/msg/WrenchStamped
+    - src/serial-connection-for-sentry/include/struct_def/geometry_msg_specified.hpp 中声明了消息转换到结构体的函数
 
 # serial connection 使用文档
 
