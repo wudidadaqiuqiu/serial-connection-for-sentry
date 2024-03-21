@@ -11,7 +11,7 @@ typedef enum Robot_id_e {
     RED_STANDARD_1 = 3,
     RED_STANDARD_2 = 4,
     RED_STANDARD_3 = 5,
-    RED_SENTRY = 0,
+    RED_SENTRY = 7,
     RED_OUTPOST = 8,
     RED_BASE = 9,
     BLUE_HERO = 101,
@@ -19,7 +19,7 @@ typedef enum Robot_id_e {
     BLUE_STANDARD_1 = 103,
     BLUE_STANDARD_2 = 104,
     BLUE_STANDARD_3 = 105,
-    BLUE_SENTRY = 100,
+    BLUE_SENTRY = 107,
     BLUE_OUTPOST = 108,
     BLUE_BASE = 109,
 } Robot_id;
