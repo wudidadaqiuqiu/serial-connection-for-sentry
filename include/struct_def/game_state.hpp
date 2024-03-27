@@ -7,11 +7,11 @@
 namespace StructDef {
 
 struct referee_game_state {
-    typedef enum {
+    typedef enum : uint8_t{
         RMUC = 1,
         RMUL = 4,
     } game_type_e;
-    typedef enum {
+    typedef enum : uint8_t{
         PROGRESS_UNSTART = 0,
         PROGRESS_PREPARE = 1,
         PROGRESS_SELFCHECK = 2,
