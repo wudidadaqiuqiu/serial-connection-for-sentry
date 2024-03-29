@@ -5,7 +5,7 @@
 #include <cstring>
 
 namespace StructDef {
-typedef enum Robot_id_e {
+typedef enum Robot_id_e : uint8_t{
     RED_HERO = 1,
     RED_ENGINEER = 2,
     RED_STANDARD_1 = 3,
