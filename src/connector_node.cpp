@@ -22,6 +22,7 @@
 #include "struct_def/geometry_msg_specified.hpp"
 #include "struct_def/referee_data_for_decision.hpp"
 #include "struct_def/offset_data.hpp"
+#include "struct_def/aerial_commands.hpp"
 #include "struct_def/game_state.hpp"
 
 using namespace std::chrono_literals;
@@ -46,6 +47,7 @@ using SerialConection::framerate_t;
 using StructDef::shoot_info_t;
 using StructDef::referee_data_for_decision;
 using StructDef::robot_offset_data;
+using StructDef::robot_aerial_commands;
 using StructDef::referee_game_state;
 
 using TransmiteInfo::SubsTupleT;
@@ -133,6 +135,9 @@ class ConnectorNode : public rclcpp::Node {
         referee_game_state_pub.init(*this);
         referee_game_state_pub.add_to_maps(check_id_func_map, update_func_map);
 
+        aerial_commands_pub.init(*this);
+        aerial_commands_pub.add_to_maps(check_id_func_map, update_func_map);
+
         unpacker.change_map(update_func_map, check_id_func_map);
 
         auto c1 = [this](const uint8_t* data, size_t len) {
@@ -213,6 +218,8 @@ class ConnectorNode : public rclcpp::Node {
     PubsT<robot_msgs::msg::GimbalData, robot_offset_data> robot_offset_data_pub;
 
     PubsT<robot_msgs::msg::RefereeGameState, referee_game_state> referee_game_state_pub;
+
+    PubsT<robot_msgs::msg::AerialCommands, robot_aerial_commands> aerial_commands_pub;
 
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
