@@ -119,21 +119,29 @@ class ConnectorNode : public rclcpp::Node {
         //     // std::cout << "unpack id is " << id <<std::endl;
         //     return (id == 0x03);
         // };
+        bool referee_pub;
+        this->declare_parameter<bool>("referee_pub", true);
+        this->get_parameter("referee_pub", referee_pub);
+
         std::map<protocol_pack_id, std::function<void(protocol_pack_id, const uint8_t*, protocol_size_t)>> update_func_map;
         std::map<protocol_pack_id, std::function<bool(protocol_pack_id)>> check_id_func_map;
         // check_id_func_map[0x03] = ll1;
         // update_func_map[0x03] = l1;
         // shoot_info_pubt.init(*this);
         // shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
-
-        referee_data_pub.init(*this);
-        referee_data_pub.add_to_maps(check_id_func_map, update_func_map);
-        
+        if (referee_pub) {
+            std::cout << std::endl << "connector pub referee relevant msg" << std::endl;
+            referee_data_pub.init(*this);
+            referee_data_pub.add_to_maps(check_id_func_map, update_func_map);
+            
+            referee_game_state_pub.init(*this);
+            referee_game_state_pub.add_to_maps(check_id_func_map, update_func_map);
+        } else {
+            std::cout << std::endl << "connector don't pub referee relevant msg" << std::endl;
+        }
         robot_offset_data_pub.init(*this);
         robot_offset_data_pub.add_to_maps(check_id_func_map, update_func_map);
 
-        referee_game_state_pub.init(*this);
-        referee_game_state_pub.add_to_maps(check_id_func_map, update_func_map);
 
         aerial_commands_pub.init(*this);
         aerial_commands_pub.add_to_maps(check_id_func_map, update_func_map);
