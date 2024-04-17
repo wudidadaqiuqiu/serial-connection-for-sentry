@@ -12,6 +12,8 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
 find_package(rclcpp REQUIRED)
 find_package(easy_robot_commands REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -44,6 +46,14 @@ ament_target_dependencies(test_connection ${connector_dependencies})
 add_executable(connector src/connector_node.cpp)
 target_include_directories(connector PRIVATE include)
 ament_target_dependencies(connector ${connector_dependencies})
+
+ament_python_install_package(${PROJECT_NAME})
+
+
+install(PROGRAMS
+  serial_connection/virtual_referee.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 
 install (TARGETS
