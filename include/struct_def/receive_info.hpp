@@ -62,11 +62,11 @@ void add_update_pkg_to_map(std::map<protocol_pack_id, update_pkg_func>& map,
     auto l1 = [&pp](protocol_pack_id id, const uint8_t* data, protocol_size_t data_len) {
         (void)id;
         // std::cout << "update pkg" << std::endl;
-        if (data_len != sizeof(pp.s.data)) {
-            // std::cout << "throw error" << std::endl;
-            std::cerr << "len not equal!" << data_len << " != " << sizeof(pp.s.data) << std::endl;
-            throw;
-        }
+        // if (data_len != sizeof(pp.s.data)) {
+        //     // std::cout << "throw error" << std::endl;
+        //     std::cerr << "len not equal!" << data_len << " != " << sizeof(pp.s.data) << std::endl;
+        //     throw;
+        // }
         // PubStructT* s = (PubStructT*) data;
         memcpy(&pp.s.data, data, data_len);
         // std::cout << "memcpy\n";
