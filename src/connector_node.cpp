@@ -21,6 +21,8 @@
 
 #include "struct_def/geometry_msg_specified.hpp"
 #include "struct_def/target_offset_cmd.hpp"
+#include "struct_def/decision_points.hpp"
+
 #include "struct_def/referee_data_for_decision.hpp"
 #include "struct_def/offset_data.hpp"
 #include "struct_def/aerial_commands.hpp"
@@ -55,7 +57,7 @@ using StructDef::referee_game_state;
 
 using TransmiteInfo::SubsTupleT;
 using ReceiveInfo::PubsT;
-using SubsMSG = MSGPack<geometry_msgs::msg::WrenchStamped, robot_msgs::msg::TargetOffset>;
+using SubsMSG = MSGPack<geometry_msgs::msg::WrenchStamped, robot_msgs::msg::CamCommand, robot_msgs::msg::DecisionPoints>;
 
 // 递归模板展开，对每个元素调用默认构造函数
 template <typename Args>
