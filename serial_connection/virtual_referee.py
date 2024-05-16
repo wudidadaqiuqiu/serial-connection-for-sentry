@@ -27,7 +27,7 @@ class MyNode(Node):
 
         self.f_topic = "/easy_robot_commands"
         # 读取 YAML 文件
-        with open('/home/xy/code/ros2_sentry_ws/src/serial-connection-for-sentry/serial_connection/referee_config.yaml', 'r') as file:
+        with open('/home/ubuntu/sentry_ws/src/serial-connection-for-sentry/serial_connection/referee_config.yaml', 'r') as file:
             config = yaml.safe_load(file)
         for c in config:
             self.declare_parameter(c, config[c])
@@ -49,7 +49,7 @@ class MyNode(Node):
         # self.get_logger().info('game_time_start value: %s' % my_param_value)
     def timer_callback(self):
         config: dict = {}
-        with open('/home/xy/code/ros2_sentry_ws/src/serial-connection-for-sentry/serial_connection/referee_config.yaml', 'r') as file:
+        with open('/home/ubuntu/sentry_ws/src/serial-connection-for-sentry/serial_connection/referee_config.yaml', 'r') as file:
             config = yaml.safe_load(file)
         if not config:
             print("read yaml fail")

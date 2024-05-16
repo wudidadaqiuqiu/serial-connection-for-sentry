@@ -17,7 +17,7 @@ def generate_launch_description():
         package='serial_connection',
         executable='connector',
         output='screen',
-        parameters=[{'referee_pub': True}]
+        parameters=[{'referee_pub': False}]
     )
 
     ld = LaunchDescription()
