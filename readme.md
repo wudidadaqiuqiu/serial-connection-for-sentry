@@ -84,3 +84,14 @@ shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
 ## 改进与扩展可能
 - 泛化connector
 - protocol类型增加
+
+
+## 测试
+```shell
+ros2 topic pub /easy_robot_commands/decision_points robot_msgs/msg/DecisionPoints "{
+  intention: 1,
+  start: {x: 0.0, y: 0.0, z: 0.0},
+  point1: {x: 1.0, y: 1.0, z: 0.0},
+  point2: {x: 2.0, y: 2.0, z: 0.0}
+}"
+```
