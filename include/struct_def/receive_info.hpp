@@ -53,6 +53,10 @@ void add_whole_pkg_check_to_map(std::map<protocol_pack_id, whole_pkg_check_func>
         // std::cout << "unpack id is " << id <<std::endl;
         return true;
     };
+    if (map.contains(pp.s.ID)) {
+        std::cerr << "ID repeat error" << std::endl;
+        throw; 
+    } 
     map[pp.s.ID] = ll1;
 }
 
@@ -75,6 +79,12 @@ void add_update_pkg_to_map(std::map<protocol_pack_id, update_pkg_func>& map,
         pp.framerate.update();
         // std::cout << "update complete" << std::endl;
     };
+
+    if (map.contains(pp.s.ID)) {
+        std::cerr << "ID repeat error" << std::endl;
+        throw; 
+    } 
+
     map[pp.s.ID] = l1;
 }
 

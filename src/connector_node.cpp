@@ -28,6 +28,8 @@
 #include "struct_def/aerial_commands.hpp"
 #include "struct_def/radar_robots_pos.hpp"
 #include "struct_def/game_state.hpp"
+#include "struct_def/chassis_info.hpp"
+
 
 using namespace std::chrono_literals;
 namespace msgea = easy_robot_commands::msg;
@@ -54,6 +56,7 @@ using StructDef::robot_offset_data;
 using StructDef::robot_aerial_commands;
 using StructDef::radar_robots_pos;
 using StructDef::referee_game_state;
+using StructDef::chassis_info_data;
 
 using TransmiteInfo::SubsTupleT;
 using ReceiveInfo::PubsT;
@@ -154,6 +157,10 @@ class ConnectorNode : public rclcpp::Node {
         radar_robots_pos_pub.init(*this);
         radar_robots_pos_pub.add_to_maps(check_id_func_map, update_func_map);
         
+        chassis_info_pub.init(*this);
+        chassis_info_pub.add_to_maps(check_id_func_map, update_func_map);
+        
+
         unpacker.change_map(update_func_map, check_id_func_map);
 
         auto c1 = [this](const uint8_t* data, size_t len) {
@@ -238,6 +245,8 @@ class ConnectorNode : public rclcpp::Node {
     PubsT<robot_msgs::msg::AerialCommands, robot_aerial_commands> aerial_commands_pub;
 
     PubsT<robot_msgs::msg::RadarInfo, radar_robots_pos> radar_robots_pos_pub;
+
+    PubsT<robot_msgs::msg::ChassisInfo, chassis_info_data> chassis_info_pub;
 
     // ea_base_caller<chassis_ve_msg> chassis_ve;
     Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
