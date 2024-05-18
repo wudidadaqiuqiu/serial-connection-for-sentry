@@ -46,7 +46,7 @@ struct referee_robot_data {
     } referee_robot_data_t;
     #pragma pack()
     referee_robot_data_t data;
-    static constexpr uint8_t ID = 0x16;
+    static constexpr uint8_t ID = 0x17;
     static constexpr std::string_view sub_topic = "referee_robot_data";
     template <typename T>
     void transfer_to(T& msg);
