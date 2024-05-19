@@ -184,9 +184,21 @@ class ConnectorNode : public rclcpp::Node {
         con << (stream << b);
     }
 
+    template <typename MSG>
+    void subscribe_walk_cmd(rclcpp::Subscription<robot_msgs::msg::WalkCmd>::SharedPtr& sub, ea_base_caller<MSG>& b) {
+        auto lambda = [&b](typename robot_msgs::msg::WalkCmd::SharedPtr msg) {
+            b.called_from(msg);
+        };
+        rclcpp::SubscriptionOptions options;
+        options.callback_group = subscription_callback_group;
+        sub = create_subscription<robot_msgs::msg::WalkCmd>("/walk_cmd", rclcpp::SensorDataQoS(), lambda, options);
+    }
+
     void subscribe_commands() {
         folded_subscribe(std::make_index_sequence<SubsTupleT<
                              SubsMSG::MSGTuple>::MSG_NUN>());
+        // 注意tuple 中的索引
+        subscribe_walk_cmd<geometry_msgs::msg::WrenchStamped>(walk_cmd_sub, std::get<0>(tu));
     }
 
     // template <std::size_t Index = 0, typename... Types>
@@ -229,6 +241,9 @@ class ConnectorNode : public rclcpp::Node {
     SubsTupleT<SubsMSG::MSGTuple>::Type subtu;
 
     SubsMSG::CallerTuple tu;
+
+    rclcpp::Subscription<robot_msgs::msg::WalkCmd>::SharedPtr walk_cmd_sub;
+    
     // EasyRobotCommands::AllMSGPackT::CallerTuple tu;
 
     // rclcpp::Publisher<sh_info_msg>::SharedPtr pub;
