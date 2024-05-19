@@ -85,7 +85,7 @@ shoot_info_pubt.add_to_maps(check_id_func_map, update_func_map);
 - 泛化connector
 - protocol类型增加
 
-ros2 topic pub /wrench geometry_msgs/msg/WrenchStamped "{
+ros2 topic pub /cmd_vel geometry_msgs/msg/WrenchStamped "{
     header: {
         stamp: {sec: 0, nanosec: 0},
         frame_id: 'base_link'
@@ -97,7 +97,7 @@ ros2 topic pub /wrench geometry_msgs/msg/WrenchStamped "{
 }"
 
 
-ros2 topic pub /walkcmd my_robot_msgs/msg/Walkcmd "{
+ros2 topic pub /walk_cmd robot_msgs/msg/WalkCmd "{
   opt: 10,
   radium: 1.5,
   velocity: 300.0,
