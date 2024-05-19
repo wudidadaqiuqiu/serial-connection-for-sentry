@@ -28,6 +28,7 @@
 #include "struct_def/aerial_commands.hpp"
 #include "struct_def/radar_robots_pos.hpp"
 #include "struct_def/game_state.hpp"
+#include "struct_def/referee_robot_data.hpp"
 #include "struct_def/chassis_info.hpp"
 
 
@@ -56,6 +57,7 @@ using StructDef::robot_offset_data;
 using StructDef::robot_aerial_commands;
 using StructDef::radar_robots_pos;
 using StructDef::referee_game_state;
+using StructDef::referee_robot_data;
 using StructDef::chassis_info_data;
 
 using TransmiteInfo::SubsTupleT;
@@ -159,6 +161,9 @@ class ConnectorNode : public rclcpp::Node {
         
         chassis_info_pub.init(*this);
         chassis_info_pub.add_to_maps(check_id_func_map, update_func_map);
+
+        referee_robot_data_pub.init(*this);
+        referee_robot_data_pub.add_to_maps(check_id_func_map,update_func_map);
         
 
         unpacker.change_map(update_func_map, check_id_func_map);
@@ -256,6 +261,8 @@ class ConnectorNode : public rclcpp::Node {
     PubsT<robot_msgs::msg::GimbalData, robot_offset_data> robot_offset_data_pub;
 
     PubsT<robot_msgs::msg::RefereeGameState, referee_game_state> referee_game_state_pub;
+
+    PubsT<robot_msgs::msg::RefereeRobotData, referee_robot_data> referee_robot_data_pub;
 
     PubsT<robot_msgs::msg::AerialCommands, robot_aerial_commands> aerial_commands_pub;
 

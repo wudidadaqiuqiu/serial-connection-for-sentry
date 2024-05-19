@@ -9,6 +9,7 @@ struct robot_offset_data {
     #pragma pack(1)
     typedef struct offset_data_t {
         int16_t offset;
+        int16_t autoaim_offset;
         uint8_t virtual_mode;
     } offset_data_t;
     #pragma pack()
@@ -22,6 +23,7 @@ struct robot_offset_data {
 template <>
 void robot_offset_data::transfer_to<robot_msgs::msg::GimbalData>(robot_msgs::msg::GimbalData& msg) {
     msg.offset = data.offset;
+    msg.autoaim_offset = data.autoaim_offset;
     msg.virtual_mode = data.virtual_mode;
 }
 }
