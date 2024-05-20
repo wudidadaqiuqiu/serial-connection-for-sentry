@@ -116,4 +116,12 @@ ros2 topic pub /easy_robot_commands/decision_points robot_msgs/msg/DecisionPoint
   point1: {x: 1.0, y: 1.0, z: 0.0},
   point2: {x: 2.0, y: 2.0, z: 0.0}
 }"
+
+ros2 topic pub /easy_robot_commands/cam_command robot_msgs/msg/CamCommand "{
+  yaw: 1.0,
+  pitch_mode: 0,
+  autoshoot_rate: 1,
+  priority_type_arr: [1,2,3,4,5,6,7,8],
+  priority_level_arr: [1],
+}"
 ```

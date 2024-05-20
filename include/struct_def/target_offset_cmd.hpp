@@ -34,10 +34,20 @@ struct EasyRobotCommands::StructDataT<robot_msgs::msg::CamCommand> {
 
         data.pitch_mode = msgptr->pitch_mode;
         data.autoaim_rate = msgptr->autoshoot_rate;
-        for (int i = 0; i < 8; ++i) {
-            data.priority_type_arr[i] = msgptr->priority_type_arr.at(i);
-            data.priority_level_arr[i] = msgptr->priority_level_arr.at(i);
+        
+        try {
+            for (int i = 0; i < 8; ++i) {
+                data.priority_type_arr[i] = msgptr->priority_type_arr.at(i);
+                data.priority_level_arr[i] = msgptr->priority_level_arr.at(i);
+            }
+        } catch (std::exception& e) {
+            std::cerr << "!!!!!!!!!!!!!!!!        arr must be 8 len     !!!!!!!!!!!!!!" << std::endl;
+            std::cerr << "\n\n";
+            std::cerr << "throw by serial_connection " << __FILE__ << " " << __LINE__ << std::endl;
+            std::cerr << "\n\n";
+            throw;
         }
+
         return *this;
     }
 
