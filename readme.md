@@ -122,6 +122,6 @@ ros2 topic pub /easy_robot_commands/cam_command robot_msgs/msg/CamCommand "{
   pitch_mode: 0,
   autoshoot_rate: 1,
   priority_type_arr: [1,2,3,4,5,6,7,8],
-  priority_level_arr: [1],
+  priority_level_arr: [1,2,3,4,5,6,7,8],
 }"
 ```

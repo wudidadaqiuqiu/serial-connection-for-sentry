@@ -271,7 +271,7 @@ class ConnectorNode : public rclcpp::Node {
     PubsT<robot_msgs::msg::ChassisInfo, chassis_info_data> chassis_info_pub;
 
     // ea_base_caller<chassis_ve_msg> chassis_ve;
-    Stream<20, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
+    Stream<120, ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> stream;
     Unpacker<ProtocolConfig<CRC16Config<0xFFFF, 0x1021>, protocol_type_e::protocol0>> unpacker;
     Connector con;
 
