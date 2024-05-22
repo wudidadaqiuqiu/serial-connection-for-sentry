@@ -32,6 +32,9 @@ struct referee_data_for_decision {
         int16_t game_time;
         uint8_t robot_id;
         uint16_t allow_bullet;
+        uint8_t power_management_gimbal_output;
+        uint8_t power_management_chassis_output;
+        uint8_t power_management_shooter_output;
     } referee_data_for_desision_t;
     #pragma pack()
     referee_data_for_desision_t data;
@@ -66,5 +69,9 @@ void referee_data_for_decision::transfer_to<robot_msgs::msg::RefereeData>(robot_
     for (int i = 0; i < 16; ++i) {
         msg.data.at(i).blood = data.team_HP[i];
     }
+
+    msg.power_management_gimbal_output = data.power_management_gimbal_output ;
+    msg.power_management_chassis_output = data.power_management_chassis_output;
+    msg.power_management_shooter_output = data.power_management_shooter_output;
 }
 }
