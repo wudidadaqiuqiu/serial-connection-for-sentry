@@ -23,6 +23,7 @@
 #include "struct_def/target_offset_cmd.hpp"
 #include "struct_def/decision_points.hpp"
 
+#include "struct_def/sentry_referee_decision.hpp"
 #include "struct_def/referee_data_for_decision.hpp"
 #include "struct_def/offset_data.hpp"
 #include "struct_def/aerial_commands.hpp"
@@ -62,7 +63,7 @@ using StructDef::chassis_info_data;
 
 using TransmiteInfo::SubsTupleT;
 using ReceiveInfo::PubsT;
-using SubsMSG = MSGPack<geometry_msgs::msg::WrenchStamped, robot_msgs::msg::CamCommand, robot_msgs::msg::DecisionPoints>;
+using SubsMSG = MSGPack<geometry_msgs::msg::WrenchStamped, robot_msgs::msg::CamCommand, robot_msgs::msg::DecisionPoints, robot_msgs::msg::SentryRefereeDecision>;
 
 // 递归模板展开，对每个元素调用默认构造函数
 template <typename Args>

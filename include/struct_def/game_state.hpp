@@ -7,6 +7,7 @@
 namespace StructDef {
 
 struct referee_game_state {
+    #pragma pack(1)
     typedef enum : uint8_t{
         RMUC = 1,
         RMUL = 4,
@@ -51,14 +52,29 @@ struct referee_game_state {
         uint8_t dart_remaining_time; 
         uint16_t dart_info; 
     }dart_info_t;
+    typedef struct my_sentry_info_t
+    {
+        uint16_t exchange_bullet_num : 11;
+        uint8_t remote_exchange_bullet_num :4;
+        uint8_t remote_exchange_blood_num :4;
+        uint16_t remain_data : 13;
+    } my_sentry_info_t;
 
-    #pragma pack(1)
+    typedef struct referee_robot_pos_t
+    {
+        float x;
+        float y;
+        float angle;
+    }referee_robot_pos_t;
+
     typedef struct referee_game_state_t {
         game_type_e game_type;
         game_progress_e game_progress;
         ground_robot_position_t ground_robot_position;
         event_data_t event_data;
         dart_info_t dart_info;
+        referee_robot_pos_t referee_robot_pos;
+        my_sentry_info_t my_sentry_info;
     } referee_game_state_t;
     #pragma pack()
     referee_game_state_t data;
@@ -100,5 +116,12 @@ void referee_game_state::transfer_to<robot_msgs::msg::RefereeGameState>(robot_ms
 
     msg.dart_remaining_time = data.dart_info.dart_remaining_time;
     msg.dart_info = data.dart_info.dart_info;
+
+    msg.x = data.referee_robot_pos.x;
+    msg.y = data.referee_robot_pos.y;
+    msg.angle = data.referee_robot_pos.angle;
+    msg.exchange_bullet_num = data.my_sentry_info.exchange_bullet_num ;
+    msg.remote_exchange_blood_num = data.my_sentry_info.remote_exchange_blood_num;
+    msg.remote_exchange_bullet_num = data.my_sentry_info.remote_exchange_bullet_num;
 }
 }
