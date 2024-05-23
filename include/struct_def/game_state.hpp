@@ -54,10 +54,10 @@ struct referee_game_state {
     }dart_info_t;
     typedef struct my_sentry_info_t
     {
-        uint16_t exchange_bullet_num;
-        uint8_t remote_exchange_bullet_num :4;
-        uint8_t remote_exchange_blood_num :4;
-        uint16_t remain_data;
+        uint32_t exchange_bullet_num : 11;
+        uint32_t remote_exchange_bullet_num :4;
+        uint32_t remote_exchange_blood_num :4;
+        uint32_t remain_data : 13;
     } my_sentry_info_t;
 
     typedef struct referee_robot_pos_t
