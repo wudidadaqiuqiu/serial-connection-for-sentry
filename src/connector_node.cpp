@@ -99,7 +99,7 @@ class ConnectorNode : public rclcpp::Node {
         //   rate1("recv"),
           //   robot_mode(),
           //   chassis_ve(),
-          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/ubuntu/sentry_ws/src/serial-connection-for-sentry/src/uart_fd.bash", printArray) {
+          con("usb:v0483p5740d0200dc02dsc02dp00ic02isc02ip01in00", "/home/ubuntu/gcopter_local_ws/src/serial-connection-for-sentry/src/uart_fd.bash", printArray) {
         subscription_callback_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
