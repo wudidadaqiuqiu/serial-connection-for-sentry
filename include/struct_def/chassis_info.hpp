@@ -13,6 +13,7 @@ struct chassis_info_data {
         int16_t Vy;
         int16_t Wz;
         uint16_t cap_v;
+        uint16_t cap_power_percent;
         uint16_t recv_cnt;
     } chassis_info_t;
     #pragma pack()
@@ -29,6 +30,7 @@ void chassis_info_data::transfer_to<robot_msgs::msg::ChassisInfo>(robot_msgs::ms
     msg.vy = data.Vy;
     msg.wz = data.Wz;
     msg.cap_voltage = data.cap_v / 10;
+    msg.cap_power_percent = data.cap_power_percent;
     msg.recv_cnt = data.recv_cnt;
 }
 }
